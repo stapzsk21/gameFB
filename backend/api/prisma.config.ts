@@ -8,6 +8,7 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  // DATABASE_URL берётся из переменных окружения (.env)
-  // Не указываем datasource.url здесь, используем env("DATABASE_URL") в schema.prisma
+  datasource: {
+    url: process.env.DATABASE_URL,
+  },
 });
