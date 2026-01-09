@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  wallet    String    @unique @db.VarChar(255)
+  createdAt DateTime  @default(now())
+
+  progress       Progress?
+  refreshTokens  RefreshToken[]
+}
+
+model Progress {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  score     BigInt   @default(0)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Nonce {
+  id        Int      @id @default(autoincrement())
+  wallet    String   @db.VarChar(255)
+  nonce     String   @db.VarChar(255)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  @@index([wallet])
+  @@index([expiresAt])
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenHash String   @db.VarChar(255)
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}

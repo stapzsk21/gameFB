@@ -1,0 +1,125 @@
+{
+  "info": {
+    "name": "MoyaIGRA API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "Get Users Count",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/debug/users-count",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["debug", "users-count"]
+        }
+      }
+    },
+    {
+      "name": "Get Nonce",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/auth/nonce",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "nonce"]
+        }
+      }
+    },
+    {
+      "name": "Verify Signature",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"signature\": \"0x...\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/auth/verify",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "verify"]
+        }
+      }
+    },
+    {
+      "name": "Get Me",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/auth/me",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "me"]
+        }
+      }
+    },
+    {
+      "name": "Refresh Tokens",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/auth/refresh",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "refresh"]
+        }
+      }
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/auth/logout",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["auth", "logout"]
+        }
+      }
+    }
+  ]
+}
+
