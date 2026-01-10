@@ -1,7 +1,22 @@
 import axios from 'axios';
 import { getErrorMessage } from '../utils/errorHandler';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Получаем URL из переменных окружения
+let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// Убеждаемся, что URL начинается с http:// или https://
+if (API_URL && !API_URL.startsWith('http://') && !API_URL.startsWith('https://')) {
+  // Если URL указан без протокола, добавляем https://
+  API_URL = `https://${API_URL}`;
+}
+
+// Удаляем завершающий слэш, если есть
+API_URL = API_URL.replace(/\/$/, '');
+
+// Логируем для отладки (только в development)
+if (import.meta.env.DEV) {
+  console.log('API URL:', API_URL);
+}
 
 const api = axios.create({
   baseURL: API_URL,

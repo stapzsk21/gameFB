@@ -67,7 +67,14 @@ export const AuthProvider = ({ children }) => {
       setAddress(walletAddress);
 
       // Получаем nonce
-      const { message } = await authAPI.getNonce(walletAddress);
+      const nonceResponse = await authAPI.getNonce(walletAddress);
+      
+      // Проверяем, что ответ содержит message
+      if (!nonceResponse || !nonceResponse.message) {
+        throw new Error('Неверный ответ от сервера: отсутствует сообщение для подписи');
+      }
+      
+      const { message } = nonceResponse;
 
       // Подписываем сообщение
       const signature = await signMessage(message);

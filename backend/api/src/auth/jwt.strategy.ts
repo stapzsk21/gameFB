@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +11,8 @@ export interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  private readonly logger = new Logger(JwtStrategy.name);
+
   constructor(configService: ConfigService) {
     const secret = configService.get<string>('JWT_ACCESS_SECRET');
     if (!secret) {
@@ -20,7 +22,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request) => {
           // Извлекаем токен из cookie
-          return request?.cookies?.['access_token'];
+          const token = request?.cookies?.['access_token'];
+          if (!token) {
+            this.logger.debug('Access token not found in cookies', {
+              hasCookies: !!request?.cookies,
+              cookieKeys: request?.cookies ? Object.keys(request.cookies) : [],
+            });
+          }
+          return token;
         },
       ]),
       ignoreExpiration: false,

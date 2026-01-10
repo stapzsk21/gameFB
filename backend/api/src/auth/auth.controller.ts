@@ -45,22 +45,29 @@ export class AuthController {
     const isProduction =
       this.configService.get<string>('NODE_ENV') === 'production';
 
-    res.cookie('access_token', result.accessToken, {
+    // Настройки cookies для cross-domain (фронтенд и бэкенд на разных доменах)
+    // В production используем sameSite: 'none' + secure: true для cross-domain
+    // В development используем sameSite: 'lax' + secure: false для localhost
+    const cookieOptions: any = {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      domain: cookieDomain,
+      secure: isProduction, // sameSite: 'none' требует secure: true
+      sameSite: isProduction ? ('none' as const) : ('lax' as const),
+      // Не устанавливаем domain для cross-domain cookies
       maxAge:
         parseInt(
           this.configService.get<string>('JWT_ACCESS_EXPIRES_IN', '1800'),
         ) * 1000,
-    });
+    };
+
+    // В development можно использовать domain для тестирования
+    if (cookieDomain && !isProduction) {
+      cookieOptions.domain = cookieDomain;
+    }
+
+    res.cookie('access_token', result.accessToken, cookieOptions);
 
     res.cookie('refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      domain: cookieDomain,
+      ...cookieOptions,
       maxAge:
         parseInt(
           this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '604800'),
@@ -84,33 +91,35 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token not found');
     }
 
-    const result = await this.authService.refreshTokens(refreshToken);
+            const result = await this.authService.refreshTokens(refreshToken);
 
-    const cookieDomain = this.configService.get<string>('COOKIE_DOMAIN');
-    const isProduction =
-      this.configService.get<string>('NODE_ENV') === 'production';
+            const cookieDomain = this.configService.get<string>('COOKIE_DOMAIN');
+            const isProduction =
+              this.configService.get<string>('NODE_ENV') === 'production';
 
-    res.cookie('access_token', result.accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      domain: cookieDomain,
-      maxAge:
-        parseInt(
-          this.configService.get<string>('JWT_ACCESS_EXPIRES_IN', '1800'),
-        ) * 1000,
-    });
+            const cookieOptions: any = {
+              httpOnly: true,
+              secure: isProduction,
+              sameSite: isProduction ? ('none' as const) : ('lax' as const),
+              maxAge:
+                parseInt(
+                  this.configService.get<string>('JWT_ACCESS_EXPIRES_IN', '1800'),
+                ) * 1000,
+            };
 
-    res.cookie('refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      domain: cookieDomain,
-      maxAge:
-        parseInt(
-          this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '604800'),
-        ) * 1000,
-    });
+            if (cookieDomain && !isProduction) {
+              cookieOptions.domain = cookieDomain;
+            }
+
+            res.cookie('access_token', result.accessToken, cookieOptions);
+
+            res.cookie('refresh_token', result.refreshToken, {
+              ...cookieOptions,
+              maxAge:
+                parseInt(
+                  this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '604800'),
+                ) * 1000,
+            });
 
     return { success: true };
   }
@@ -127,9 +136,18 @@ export class AuthController {
       await this.authService.logout(refreshToken);
     }
 
-    // Очищаем cookies
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
+    // Очищаем cookies с теми же настройками, что и при установке
+    const isProduction =
+      this.configService.get<string>('NODE_ENV') === 'production';
+    
+    const clearCookieOptions: any = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? ('none' as const) : ('lax' as const),
+    };
+
+    res.clearCookie('access_token', clearCookieOptions);
+    res.clearCookie('refresh_token', clearCookieOptions);
 
     return { success: true };
   }

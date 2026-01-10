@@ -9,16 +9,31 @@ async function bootstrap() {
   
   // Включаем CORS для фронтенда
   // В development разрешаем любые localhost порты
-  const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? [process.env.APP_ORIGIN || 'http://localhost:5173']
-    : [
-        'http://localhost:5173',
-        'http://localhost:8080',
-        'http://localhost:3000',
-        'http://127.0.0.1:5173',
-        'http://127.0.0.1:8080',
-        'http://127.0.0.1:3000',
-      ];
+  let allowedOrigins: string[];
+  
+  if (process.env.NODE_ENV === 'production') {
+    // В production используем переменную окружения APP_ORIGIN
+    // Можно указать несколько origins через запятую
+    const appOrigin = process.env.APP_ORIGIN || '';
+    allowedOrigins = appOrigin
+      ? appOrigin.split(',').map(origin => origin.trim()).filter(origin => origin)
+      : [];
+    
+    // Если APP_ORIGIN не указан, разрешаем только localhost (для тестирования)
+    if (allowedOrigins.length === 0) {
+      allowedOrigins = ['http://localhost:5173'];
+    }
+  } else {
+    // Development - разрешаем все localhost порты
+    allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:8080',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:8080',
+      'http://127.0.0.1:3000',
+    ];
+  }
   
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
